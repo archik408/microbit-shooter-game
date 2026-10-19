@@ -1,0 +1,352 @@
+/* «Защитник Неба» — оформление аркадного cabinet-каркаса вокруг канваса. */
+
+:root {
+  --bg: #0a0c10;
+  --panel: #10141f;
+  --cyan: #3de0ff;
+  --yellow: #ffd93d;
+  --danger: #e04a1a;
+  --green: #79b46a;
+  /* Press Start 2P без кириллицы: латиница/цифры — из него, кириллица — Pixelify Sans. */
+  --font: 'Press Start 2P', 'Pixelify Sans', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 35%, #141a26 0%, var(--bg) 70%);
+  font-family: var(--font);
+  color: #ffffff;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.cabinet {
+  position: relative;
+  width: min(94vw, calc(88vh * 4 / 3));
+  aspect-ratio: 4 / 3;
+  border: 4px solid #23262e;
+  outline: 4px solid #10141f;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+canvas#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  touch-action: none; /* тап по экрану = выстрел, жесты браузера не нужны */
+}
+
+/* Сканлайны поверх экрана — не мешают кликам. */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.16) 0 2px, transparent 2px 4px);
+  mix-blend-mode: multiply;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---------- Кнопки ---------- */
+
+.btn {
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #ffffff;
+  background: #1d2735;
+  border: 3px solid var(--cyan);
+  padding: 10px 20px;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #0a3a4a;
+  text-transform: uppercase;
+}
+
+.btn:hover {
+  background: #274360;
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #0a3a4a;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  color: #10141f;
+  background: var(--yellow);
+  border-color: #10141f;
+  box-shadow: 0 6px 0 #8f6c00;
+}
+
+.btn-primary:hover {
+  background: #ffe37a;
+}
+
+.btn-primary:active {
+  box-shadow: 0 1px 0 #8f6c00;
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: #14161c;
+  box-shadow: 0 5px 0 #7a2408;
+}
+
+.btn-danger:hover {
+  background: #f2602e;
+}
+
+.btn-danger:active {
+  box-shadow: 0 1px 0 #7a2408;
+}
+
+.btn-big {
+  font-size: 24px;
+  padding: 16px 48px;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* ---------- Оверлеи ---------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10; /* меню и финал всегда поверх D-pad и игровых слоёв */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(6, 8, 14, 0.72);
+  text-align: center;
+  padding: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(30px, 6vw, 56px);
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--yellow);
+  text-shadow:
+    4px 4px 0 #14161c,
+    8px 8px 0 rgba(224, 74, 26, 0.55);
+  letter-spacing: 2px;
+}
+
+.title-small {
+  font-size: clamp(20px, 4.5vw, 40px);
+  color: var(--cyan);
+  text-shadow: 3px 3px 0 #14161c;
+}
+
+.subtitle {
+  margin: -6px 0 2px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--cyan);
+}
+
+.stats {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.9;
+  color: #ffffff;
+  white-space: pre-line;
+}
+
+.help {
+  margin-top: 8px;
+  font-size: 9px;
+  line-height: 2.1;
+  color: #9aa3b0;
+  letter-spacing: 1px;
+}
+
+/* ---------- Верхняя панель и статус ---------- */
+
+.topbar {
+  position: absolute;
+  top: 10px;
+  right: 146px; /* слева от боковой HUD-панели канваса */
+  display: flex;
+  gap: 10px;
+}
+
+.topbar .btn {
+  font-size: 11px;
+  padding: 7px 12px;
+}
+
+.chip {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 7px 10px;
+  background: rgba(16, 20, 31, 0.85);
+  border: 2px solid #565e6c;
+  color: #9aa3b0;
+  max-width: 46%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Индикатор micro:bit внутри чипа: тухлый по умолчанию, горит при подключении. */
+.mb-icon {
+  flex: none;
+  fill: none;
+  stroke: #565e6c;
+  stroke-width: 2;
+}
+
+.mb-icon .led {
+  fill: #565e6c;
+  stroke: none;
+}
+
+.mb-icon .hole {
+  fill: #10141f;
+  stroke: #565e6c;
+  stroke-width: 1.2;
+}
+
+.chip.chip-connected {
+  border-color: var(--green);
+  color: #a8e29a;
+}
+
+.chip.chip-connected .mb-icon {
+  stroke: var(--green);
+  filter: drop-shadow(0 0 4px rgba(121, 180, 106, 0.9));
+}
+
+.chip.chip-connected .mb-icon .led {
+  fill: #a8e29a;
+}
+
+.chip.chip-error,
+.chip.chip-connecting {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.noscript {
+  position: fixed;
+  inset: auto 0 0 0;
+  margin: 0;
+  padding: 12px;
+  text-align: center;
+  background: var(--danger);
+  color: #fff;
+  font-family: var(--font);
+}
+
+/* ---------- Виртуальный D-pad (touch без акселерометра) ---------- */
+
+.joystick {
+  position: absolute;
+  left: 14px;
+  bottom: 90px;
+  width: 132px;
+  height: 132px;
+  z-index: 5;
+  opacity: 0.55;
+}
+
+.joy-btn {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(61, 224, 255, 0.85);
+  background: rgba(16, 20, 31, 0.55);
+  color: var(--cyan);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 0;
+  touch-action: none;
+}
+
+.joy-btn:active {
+  background: rgba(61, 224, 255, 0.35);
+}
+
+.joy-up {
+  top: 0;
+  left: 44px;
+}
+
+.joy-down {
+  bottom: 0;
+  left: 44px;
+}
+
+.joy-left {
+  top: 44px;
+  left: 0;
+}
+
+.joy-right {
+  top: 44px;
+  right: 0;
+}
+
+/* ---------- Мобильные (pointer: coarse) ---------- */
+
+/* Компактный HUD без боковой панели: верхним кнопкам место у правого края. */
+.cabinet.compact .topbar {
+  right: 10px;
+}
+
+/* Портрет на телефоне: принудительно разворачиваем кабинет в landscape.
+   Размеры подобраны под повёрнутый экран: u = min(24vh, 32vw). */
+@media (pointer: coarse) and (orientation: portrait) {
+  body {
+    padding: 0;
+  }
+
+  .cabinet {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: calc(min(24vh, 32vw) * 4);
+    height: calc(min(24vh, 32vw) * 3);
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+
+  .title {
+    font-size: clamp(18px, 4.2vh, 40px);
+  }
+
+  .btn-big {
+    font-size: clamp(14px, 3vh, 24px);
+    padding: 12px 32px;
+  }
+}

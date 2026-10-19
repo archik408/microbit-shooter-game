@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Защитник Неба — 16-bit shooter для BBC micro:bit</title>
+    <link rel="icon" href="data:," />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#0a0c10" />
+    <!-- iOS standalone -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Защитник Неба" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Press Start 2P не содержит кириллицы: глифы без кириллицы (латиница,
+      цифры) берутся из него, кириллица — из Pixelify Sans (по-глифовый
+      fallback CSS-стека).
+    -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <main class="cabinet">
+      <canvas
+        id="game"
+        width="640"
+        height="480"
+        aria-label="Игровое поле: небо, прицел и вражеские самолёты"
+      ></canvas>
+      <div class="scanlines" aria-hidden="true"></div>
+
+      <div id="statusChip" class="chip">
+        <!-- Индикатор micro:bit: загорается при подключении платы. -->
+        <svg
+          class="mb-icon"
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <circle cx="7" cy="10" r="1.6" class="hole" />
+          <circle cx="7" cy="14" r="1.6" class="hole" />
+          <circle cx="17" cy="10" r="1.6" class="hole" />
+          <circle cx="17" cy="14" r="1.6" class="hole" />
+          <rect x="10.5" y="8.5" width="3" height="7" class="led" />
+        </svg>
+        <span id="chipText">УПРАВЛЕНИЕ: КЛАВИАТУРА</span>
+      </div>
+
+      <div id="topbar" class="topbar hidden">
+        <button id="muteBtn" class="btn" type="button">ЗВУК: ВКЛ</button>
+        <button id="endBtn" class="btn btn-danger" type="button">ЗАВЕРШИТЬ</button>
+      </div>
+
+      <!-- Виртуальный D-pad для touch-устройств без акселерометра. -->
+      <div id="joystick" class="joystick hidden">
+        <button class="joy-btn joy-up" type="button" data-dir="up" aria-label="Вверх">▲</button>
+        <button class="joy-btn joy-left" type="button" data-dir="left" aria-label="Влево">◀</button>
+        <button class="joy-btn joy-right" type="button" data-dir="right" aria-label="Вправо">
+          ▶
+        </button>
+        <button class="joy-btn joy-down" type="button" data-dir="down" aria-label="Вниз">▼</button>
+      </div>
+
+      <div id="menuOverlay" class="overlay">
+        <h1 class="title">ЗАЩИТНИК<br />НЕБА</h1>
+        <p class="subtitle">16-BIT AIR COMBAT · MICRO:BIT EDITION</p>
+        <button id="startBtn" class="btn btn-primary btn-big" type="button">СТАРТ</button>
+        <button id="connectBtn" class="btn" type="button">ПОДКЛЮЧИТЬ MICRO:BIT</button>
+        <div class="help">
+          <p>КЛАВИАТУРА: СТРЕЛКИ — ПРИЦЕЛ · ПРОБЕЛ — ОГОНЬ · ENTER — СТАРТ</p>
+          <p>MICRO:BIT: НАКЛОН — ПРИЦЕЛ · A+B — ОГОНЬ · ВСТРЯХНУТЬ — СТАРТ</p>
+          <p>ТЕЛЕФОН: НАКЛОН — ПРИЦЕЛ · ТАП — ОГОНЬ</p>
+        </div>
+      </div>
+
+      <div id="gameoverOverlay" class="overlay hidden">
+        <h2 class="title title-small">ИГРА ОКОНЧЕНА</h2>
+        <p id="finalStats" class="stats"></p>
+        <button id="againBtn" class="btn btn-primary btn-big" type="button">ИГРАТЬ СНОВА</button>
+      </div>
+    </main>
+
+    <noscript>
+      <p class="noscript">Для игры «Защитник Неба» нужен включённый JavaScript.</p>
+    </noscript>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
