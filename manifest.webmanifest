@@ -4,12 +4,19 @@
   "description": "16-bit авиашутер: кабина истребителя, micro:bit, клавиатура и наклон телефона",
   "lang": "ru",
   "dir": "ltr",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "landscape",
   "background_color": "#0a0c10",
   "theme_color": "#0a0c10",
+  "categories": ["games", "entertainment"],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
@@ -18,6 +25,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/narrow-1.png",
+      "sizes": "960x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Кабина истребителя"
+    },
+    {
+      "src": "screenshots/wide-1.png",
+      "sizes": "1280x960",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Бой: сбивайте самолёты противника"
     }
   ]
 }

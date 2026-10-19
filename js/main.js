@@ -22,6 +22,7 @@ const againBtn = document.getElementById('againBtn');
 const endBtn = document.getElementById('endBtn');
 const connectBtn = document.getElementById('connectBtn');
 const muteBtn = document.getElementById('muteBtn');
+const installBtn = document.getElementById('installBtn');
 
 const sound = new SoundSystem();
 const microbit = new MicrobitConnector();
@@ -201,6 +202,34 @@ function setupDpad() {
 setupTouchControls();
 
 /* ---------- PWA ---------- */
+
+/**
+ * Установка из интерфейса (Chrome/Android): браузер отдаёт отложенный
+ * промпт событием beforeinstallprompt. Показать системный диалог можно
+ * один раз — после клика ждём новое событие. iOS событие не шлёт:
+ * кнопка не появляется, установка — «На экран Домой» из Safari.
+ */
+let installPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  installPrompt = event;
+  installBtn.classList.remove('hidden');
+});
+
+installBtn.addEventListener('click', () => {
+  installBtn.blur();
+  if (!installPrompt) return;
+  // Отказ диалога установки (уже установлено, политика браузера) — не фатально.
+  installPrompt.prompt().catch(() => {});
+  installPrompt = null;
+  installBtn.classList.add('hidden');
+});
+
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  installBtn.classList.add('hidden');
+});
 
 // Service Worker: офлайн и установка как standalone-приложение.
 // Только http/https (file:// и не-secure контексты не подходят).

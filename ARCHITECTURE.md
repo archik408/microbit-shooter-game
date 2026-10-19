@@ -49,6 +49,9 @@
     «СЧЕТ · РЕКОРД · СБИТО · ВРЕМЯ», зона прицела расширяется до `307`.
     Границы зон — `Renderer.aimBounds` (единственный источник), у `Game`
     есть fallback-константы для тестов.
+- Touch-политика: `html/body` — `touch-action: manipulation` (двойной тап
+  не зумит, pinch остаётся), игровой ввод (канвас, `.joy-btn`) — `none`;
+  `user-select: none` на `body` — тапы не выделяют текст.
 - Landscape принудительно: на старте `requestFullscreen()` +
   `screen.orientation.lock('landscape')` (Android); CSS-резерв — в
   portrait кабинет поворачивается `rotate(90deg)` с размерами
@@ -58,15 +61,22 @@
 
 ## PWA (финальное решение)
 
-- `manifest.webmanifest`: `start_url: "./"`, `display: "standalone"`,
-  `orientation: "landscape"`, тема `#0a0c10`, иконки 192/512 + maskable.
-- Иконки — артефакты `scripts/generate-icons.mjs` (PNG-энкодер на
-  `node:zlib`, пиксель-арт 64×64): перегенерация командой, руками не править.
+- `manifest.webmanifest`: `id`/`start_url`/`scope: "./"`, `display:
+"standalone"` + `display_override`, `launch_handler`, `orientation:
+"landscape"`, тема `#0a0c10`, иконки 192/512 + maskable, скриншоты
+  narrow + wide (богатый install-диалог Android).
+- Иконки и промо-скриншоты — артефакты `scripts/generate-icons.mjs`
+  (PNG-энкодер на `node:zlib`, пиксель-арт): перегенерация командой,
+  руками не править. Регрессионные проверки обвязки — `tests/pwa.test.js`.
 - `sw.js` (версия `sky-defender-vN`): same-origin GET — cache-first, ядро
   префетчится на install; Google Fonts — stale-while-revalidate; смена
   версии кэша = bump `VERSION`. Пути только относительные (`./`) —
   проект живёт на собственном домене Vercel (относительные пути — для переносимости на любой статик-хостинг).
-- Регистрация SW — в `main.js`, только на http/https; iOS-мета — в `index.html`.
+- Регистрация SW — в `main.js`, только на http/https; iOS-мета — в
+  `index.html` (`viewport-fit=cover`, apple-/mobile-web-app-capable).
+- Установка: в меню кнопка «УСТАНОВИТЬ ПРИЛОЖЕНИЕ» по событию
+  `beforeinstallprompt` (Chrome/Android, показать промпт можно один раз);
+  iOS — «На экран Домой» из Safari, кнопки там не будет.
 
 ## Слои и поток данных
 

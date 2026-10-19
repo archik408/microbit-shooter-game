@@ -1,7 +1,8 @@
 /**
- * Генератор PWA-иконок без зависимостей: пиксель-арт 64×64 (небо, солнце,
- * вражеский самолёт) апскейлится целым множителем в 192/512 и пишется
- * как PNG (энкодер на node:zlib + CRC32). Запуск: node scripts/generate-icons.mjs
+ * Генератор PWA-графики без зависимостей: иконки (пиксель-арт 64×64 —
+ * небо, солнце, вражеский самолёт — апскейлится в 192/512) и промо-
+ * скриншоты для install-диалога (сцены в палитре игры). PNG-энкодер на
+ * node:zlib + CRC32. Запуск: node scripts/generate-icons.mjs
  */
 import { deflateSync } from 'node:zlib';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -10,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), '..'));
 const ICONS_DIR = join(ROOT, 'icons');
+const SHOTS_DIR = join(ROOT, 'screenshots');
 
 /* ---------- PNG-энкодер ---------- */
 
@@ -58,48 +60,121 @@ function encodePng(width, height, rgba) {
 
 /* ---------- Пиксель-арт ---------- */
 
+/** Логический размер арт-блока иконки: 64 «пикселя», апскейл целым множителем. */
 const ART = 64;
 
-function makeCanvas(size) {
-  return { size, pixels: new Uint8Array(size * size * 4) };
+/** Палитры врагов — те же варианты, что в render.js (PLANE_VARIANTS там). */
+const PLANE_VARIANTS = [
+  { body: '#c9d0da', dark: '#7d848f', trim: '#c22f2f' },
+  { body: '#9a86e0', dark: '#6a58a8', trim: '#ffd93d' },
+];
+
+/** Канвас произвольного соотношения сторон: иконки квадратные, скриншоты нет. */
+function makeCanvas(width, height) {
+  return { width, height, pixels: new Uint8Array(width * height * 4) };
+}
+
+function hexToRgb(hex) {
+  return [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ];
+}
+
+function paintPixel(canvas, rgb, x, y) {
+  if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) return;
+  const at = (Math.round(y) * canvas.width + Math.round(x)) * 4;
+  canvas.pixels[at] = rgb[0];
+  canvas.pixels[at + 1] = rgb[1];
+  canvas.pixels[at + 2] = rgb[2];
+  canvas.pixels[at + 3] = 255;
 }
 
 function paintRect(canvas, hex, x, y, w, h) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
+  const rgb = hexToRgb(hex);
   for (let py = y; py < y + h; py++) {
     for (let px = x; px < x + w; px++) {
-      if (px < 0 || py < 0 || px >= canvas.size || py >= canvas.size) continue;
-      const at = (py * canvas.size + px) * 4;
-      canvas.pixels[at] = r;
-      canvas.pixels[at + 1] = g;
-      canvas.pixels[at + 2] = b;
-      canvas.pixels[at + 3] = 255;
+      paintPixel(canvas, rgb, px, py);
     }
   }
 }
 
 function paintCircle(canvas, hex, cx, cy, radius) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
+  const rgb = hexToRgb(hex);
   for (let py = Math.floor(cy - radius); py <= cy + radius; py++) {
     for (let px = Math.floor(cx - radius); px <= cx + radius; px++) {
       if ((px - cx) ** 2 + (py - cy) ** 2 > radius * radius) continue;
-      if (px < 0 || py < 0 || px >= canvas.size || py >= canvas.size) continue;
-      const at = (py * canvas.size + px) * 4;
-      canvas.pixels[at] = r;
-      canvas.pixels[at + 1] = g;
-      canvas.pixels[at + 2] = b;
-      canvas.pixels[at + 3] = 255;
+      paintPixel(canvas, rgb, px, py);
     }
   }
 }
 
+function strokeCircle(canvas, hex, cx, cy, radius) {
+  const rgb = hexToRgb(hex);
+  for (let deg = 0; deg < 360; deg++) {
+    const rad = (deg * Math.PI) / 180;
+    paintPixel(canvas, rgb, cx + Math.cos(rad) * radius, cy + Math.sin(rad) * radius);
+    paintPixel(canvas, rgb, cx + Math.cos(rad) * (radius - 1), cy + Math.sin(rad) * (radius - 1));
+  }
+}
+
+/** Пиксельное облако: пирамида «ступеней» — расширяется вниз, как кучевое. */
+function paintCloud(canvas, x, y, scale) {
+  const rgb = hexToRgb('#cfe4f7');
+  const rowHeight = Math.ceil(scale * 0.7);
+  for (let dy = 0; dy < 3; dy++) {
+    const rowX = x - Math.round(dy * scale * 0.5);
+    for (let dx = 0; dx < 3 + dy; dx++) {
+      for (let py = 0; py < rowHeight; py++) {
+        for (let px = 0; px < scale; px++) {
+          paintPixel(canvas, rgb, rowX + dx * scale + px, y + dy * rowHeight + py);
+        }
+      }
+    }
+  }
+}
+
+/** Вражеский самолёт «в фас» — тот же силуэт, что в иконке и в игре. */
+function paintPlane(canvas, cx, cy, unit, variant) {
+  const px = (value) => Math.round(cx + value * unit);
+  const py = (value) => Math.round(cy + value * unit);
+  const pw = (value) => Math.round(value * unit);
+  paintRect(canvas, variant.trim, px(-6), py(-10), pw(12), pw(4)); // хвост
+  paintRect(canvas, variant.body, px(-22), py(-2), pw(44), pw(6)); // крылья
+  paintRect(canvas, variant.trim, px(-22), py(-3), pw(6), pw(8));
+  paintRect(canvas, variant.trim, px(16), py(-3), pw(6), pw(8));
+  paintRect(canvas, variant.dark, px(-6), py(-6), pw(12), pw(18)); // фюзеляж
+  paintRect(canvas, '#9adcff', px(-3), py(-4), pw(6), pw(8)); // фонарь
+  paintRect(canvas, '#ffd93d', px(-2), py(10), pw(4), pw(4)); // кок винта
+}
+
+/** Прицел: жёлтое кольцо с рисками и точкой в центре, как в игре. */
+function paintCrosshair(canvas, cx, cy, radius) {
+  strokeCircle(canvas, '#ffd93d', cx, cy, radius);
+  const rgb = hexToRgb('#ffd93d');
+  for (let d = -radius - 5; d <= radius + 5; d++) {
+    if (Math.abs(d) <= radius - 2) continue; // риски выходят за кольцо
+    paintPixel(canvas, rgb, cx + d, cy);
+    paintPixel(canvas, rgb, cx, cy + d);
+  }
+  paintRect(canvas, '#ffd93d', cx - 1, cy - 1, 3, 3);
+}
+
+/** Приборная доска снизу экрана: тёмный металл, заклёпки, лампы. */
+function paintDashboard(canvas, y) {
+  const width = canvas.width;
+  paintRect(canvas, '#23262e', 0, y, width, canvas.height - y);
+  paintRect(canvas, '#3a3f4a', 0, y, width, 4);
+  for (let x = 16; x < width; x += 40) paintRect(canvas, '#565e6c', x, y + 8, 4, 4);
+  paintRect(canvas, '#ffd93d', Math.round(width * 0.38), y + 14, 6, 6);
+  paintRect(canvas, '#79b46a', Math.round(width * 0.61), y + 14, 6, 6);
+  paintRect(canvas, '#e04a1a', Math.round(width * 0.84), y + 14, 6, 6);
+}
+
 /** Иконка: полосатое небо, солнце и вражеский самолёт «в фас». */
 function drawArt(size, { margin = 0 }) {
-  const canvas = makeCanvas(size);
+  const canvas = makeCanvas(size, size);
   const bands = ['#16418f', '#2a63b8', '#4c8cd6', '#7fb6e8', '#b7e2f8'];
   const bandHeight = Math.ceil(size / bands.length);
   bands.forEach((color, index) =>
@@ -110,35 +185,75 @@ function drawArt(size, { margin = 0 }) {
   paintCircle(canvas, '#fff3b0', size * 0.2, size * 0.2, size * 0.06);
 
   // Самолёт в центре; для maskable-версии отступ (safe zone — круг ~80%).
-  const s = (size - margin * 2) / ART;
-  const px = (value) => Math.round(margin + value * s);
-  const pw = (value) => Math.round(value * s);
-  const plane = {
+  const unit = (size - margin * 2) / ART;
+  paintPlane(canvas, 32 * unit + margin, 32 * unit + margin, unit, {
     body: '#c9d0da',
     dark: '#7d848f',
     trim: '#c22f2f',
-    canopy: '#9adcff',
+  });
+  return canvas;
+}
+
+/**
+ * Промо-скриншот: небо как buildSky() в render.js (12 полос, дизер-переходы),
+ * облака, солнце, пара врагов, прицел на цели и приборная доска. Рисуем в
+ * «мировых» пикселях, апскейлим целым множителем — те же толстые пиксели.
+ */
+function drawScreenshot(width, height) {
+  const canvas = makeCanvas(width, height);
+
+  const top = [22, 65, 143];
+  const bottom = [183, 226, 248];
+  const bands = 12;
+  const bandHeight = Math.ceil(height / bands);
+  const colorAt = (index) => {
+    const t = index / (bands - 1);
+    return top.map((c, channel) => Math.round(c + (bottom[channel] - c) * t));
   };
-  const cx = 32;
-  paintRect(canvas, plane.trim, px(cx - 6), px(22), pw(12), pw(4)); // хвост
-  paintRect(canvas, plane.body, px(cx - 22), px(30), pw(44), pw(6)); // крылья
-  paintRect(canvas, plane.trim, px(cx - 22), px(29), pw(6), pw(8));
-  paintRect(canvas, plane.trim, px(cx + 16), px(29), pw(6), pw(8));
-  paintRect(canvas, plane.dark, px(cx - 6), px(26), pw(12), pw(18)); // фюзеляж
-  paintRect(canvas, plane.canopy, px(cx - 3), px(28), pw(6), pw(8)); // фонарь
-  paintRect(canvas, '#ffd93d', px(cx - 2), px(42), pw(4), pw(4)); // кок винта
+  for (let i = 0; i < bands; i++) {
+    const rgb = colorAt(i);
+    for (let y = i * bandHeight; y < Math.min((i + 1) * bandHeight, height); y++) {
+      for (let x = 0; x < width; x++) paintPixel(canvas, rgb, x, y);
+    }
+    if (i > 0) {
+      // Дизер-шахматка 2×1 на стыке полос — приём из buildSky().
+      const above = colorAt(i - 1);
+      const y0 = i * bandHeight;
+      for (let y = y0 - 4; y < y0; y++) {
+        for (let x = (y + y0) % 4; x < width; x += 4) {
+          const dither = ((x >> 1) + y) % 2 === 0 ? rgb : above;
+          for (let w = 0; w < 2; w++) paintPixel(canvas, dither, x + w, y);
+        }
+      }
+    }
+  }
+
+  paintCircle(canvas, '#ffd93d', width * 0.12, height * 0.11, height * 0.05);
+  paintCircle(canvas, '#fff3b0', width * 0.11, height * 0.1, height * 0.03);
+  paintCloud(canvas, Math.round(width * 0.55), Math.round(height * 0.12), 8);
+  paintCloud(canvas, Math.round(width * 0.05), Math.round(height * 0.52), 6);
+  paintCloud(canvas, Math.round(width * 0.82), Math.round(height * 0.62), 7);
+
+  // Крупный враг слева — под прицелом, мелкий фиолетовый уходит верхом вправо.
+  const bigUnit = height / 76;
+  const bigX = width * 0.36;
+  const bigY = height * 0.48;
+  paintPlane(canvas, bigX, bigY, bigUnit, PLANE_VARIANTS[0]);
+  paintPlane(canvas, width * 0.76, height * 0.24, bigUnit * 0.55, PLANE_VARIANTS[1]);
+  paintCrosshair(canvas, bigX, bigY, Math.round(height * 0.07));
+  paintDashboard(canvas, Math.round(height * 0.82));
   return canvas;
 }
 
 /** Целочисленный апскейл nearest-neighbor. */
 function upscale(canvas, factor) {
-  const result = makeCanvas(canvas.size * factor);
-  for (let y = 0; y < result.size; y++) {
+  const result = makeCanvas(canvas.width * factor, canvas.height * factor);
+  for (let y = 0; y < result.height; y++) {
     const sourceY = (y / factor) | 0;
-    for (let x = 0; x < result.size; x++) {
+    for (let x = 0; x < result.width; x++) {
       const sourceX = (x / factor) | 0;
-      const from = (sourceY * canvas.size + sourceX) * 4;
-      const to = (y * result.size + x) * 4;
+      const from = (sourceY * canvas.width + sourceX) * 4;
+      const to = (y * result.width + x) * 4;
       result.pixels.set(canvas.pixels.subarray(from, from + 4), to);
     }
   }
@@ -146,17 +261,21 @@ function upscale(canvas, factor) {
 }
 
 mkdirSync(ICONS_DIR, { recursive: true });
+mkdirSync(SHOTS_DIR, { recursive: true });
 
+// Скриншоты рисуются в логических пикселях (240 в высоту) и апскейлятся ×4.
 const outputs = [
-  ['icon-192.png', drawArt(64, {}), 3],
-  ['icon-512.png', drawArt(64, {}), 8],
-  ['icon-maskable-512.png', drawArt(64, { margin: 10 }), 8],
+  [ICONS_DIR, 'icon-192.png', drawArt(64, {}), 3],
+  [ICONS_DIR, 'icon-512.png', drawArt(64, {}), 8],
+  [ICONS_DIR, 'icon-maskable-512.png', drawArt(64, { margin: 10 }), 8],
+  [SHOTS_DIR, 'narrow-1.png', drawScreenshot(240, 320), 4],
+  [SHOTS_DIR, 'wide-1.png', drawScreenshot(320, 240), 4],
 ];
 
-for (const [name, art, factor] of outputs) {
-  writeFileSync(
-    join(ICONS_DIR, name),
-    encodePng(art.size * factor, art.size * factor, upscale(art, factor).pixels),
+for (const [dir, name, art, factor] of outputs) {
+  const scaled = upscale(art, factor);
+  writeFileSync(join(dir, name), encodePng(scaled.width, scaled.height, scaled.pixels));
+  console.log(
+    `${dir === ICONS_DIR ? 'icons' : 'screenshots'}/${name} — ${scaled.width}×${scaled.height}`,
   );
-  console.log(`icons/${name} — ${art.size * factor}×${art.size * factor}`);
 }

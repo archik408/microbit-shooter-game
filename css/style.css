@@ -15,6 +15,13 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  /* Двойной тап не зумит страницу (в т.ч. по D-pad и кнопкам меню);
+     pinch-zoom для доступности остаётся. */
+  touch-action: manipulation;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -26,6 +33,20 @@ body {
   color: #ffffff;
   padding: 16px;
   overflow: hidden;
+  /* Игра — не текст: тапы не выделяют содержимое, без long-press callout
+     и серого flash подсвечивания тапа (iOS/Android). */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* standalone на iOS с viewport-fit=cover: не залезаем под «челку». */
+@supports (padding: max(0px)) {
+  body {
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+      max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
 }
 
 .cabinet {
@@ -279,6 +300,9 @@ canvas#game {
   height: 132px;
   z-index: 5;
   opacity: 0.55;
+  /* Контейнер D-pad закрывает промежутки между кнопками: двойной тап
+     по ним не зумит страницу. Сами кнопки ниже — touch-action: none. */
+  touch-action: manipulation;
 }
 
 .joy-btn {

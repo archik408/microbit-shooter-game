@@ -5,7 +5,7 @@
  * Google Fonts — stale-while-revalidate в отдельном вечном кэше.
  * Путь '.' — работает и в корне домена (Vercel), и в подпути любого хостинга.
  */
-const VERSION = 'sky-defender-v2';
+const VERSION = 'sky-defender-v3';
 const FONTS_CACHE = 'sky-defender-fonts';
 
 const CORE_ASSETS = [
@@ -23,6 +23,8 @@ const CORE_ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
+  './screenshots/narrow-1.png',
+  './screenshots/wide-1.png',
 ];
 
 self.addEventListener('install', (event) => {

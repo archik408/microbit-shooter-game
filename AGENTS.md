@@ -31,23 +31,23 @@ npm run dev   # http://localhost:8080
 
 ## Карта проекта
 
-| Путь                                      | Роль                                                                |
-| ----------------------------------------- | ------------------------------------------------------------------- |
-| `index.html`, `css/`                      | экран-«кабина», оверлеи, D-pad, PWA-мета (только отн. пути!)        |
-| `js/main.js`                              | композиция: подсистемы, кнопки, touch-режим, регистрация SW         |
-| `js/game.js`                              | игровая логика: состояния, спавн, попадания, таймер, счёт           |
-| `js/render.js`                            | весь рендер: мир 320×240 → ×2, кабина, HUD (panel/compact)          |
-| `js/input.js`                             | ввод: клавиатура/D-pad/micro:bit/акселерометр → один API            |
-| `js/audio.js`                             | процедурный звук (Web Audio)                                        |
-| `js/microbit/serial.js`                   | USB-коннектор платы (Web Serial)                                    |
-| `js/math.js`                              | общие хелперы: `clamp`/`lerp`/`randomBetween` (нижний слой)         |
-| `manifest.webmanifest`, `sw.js`, `icons/` | PWA: standalone-установка и офлайн (детали — ARCHITECTURE.md)       |
-| `scripts/generate-icons.mjs`              | генератор PWA-иконок; иконки — артефакты, руками не править         |
-| `firmware/microbit-firmware.ts`           | прошивка MakeCode для платы                                         |
-| `server.mjs`                              | статический сервер (только localhost; экспорт `createStaticServer`) |
-| `tests/`                                  | Vitest-тесты                                                        |
-| `vercel.json`                             | заголовки Vercel: nosniff, no-cache для sw.js                       |
-| `aireview/`                               | процесс ревью — [aireview/README.md](aireview/README.md)            |
+| Путь                                                      | Роль                                                                          |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `index.html`, `css/`                                      | экран-«кабина», оверлеи, D-pad, PWA-мета (только отн. пути!)                  |
+| `js/main.js`                                              | композиция: подсистемы, кнопки, touch-режим, регистрация SW                   |
+| `js/game.js`                                              | игровая логика: состояния, спавн, попадания, таймер, счёт                     |
+| `js/render.js`                                            | весь рендер: мир 320×240 → ×2, кабина, HUD (panel/compact)                    |
+| `js/input.js`                                             | ввод: клавиатура/D-pad/micro:bit/акселерометр → один API                      |
+| `js/audio.js`                                             | процедурный звук (Web Audio)                                                  |
+| `js/microbit/serial.js`                                   | USB-коннектор платы (Web Serial)                                              |
+| `js/math.js`                                              | общие хелперы: `clamp`/`lerp`/`randomBetween` (нижний слой)                   |
+| `manifest.webmanifest`, `sw.js`, `icons/`, `screenshots/` | PWA: standalone-установка и офлайн (детали — ARCHITECTURE.md)                 |
+| `scripts/generate-icons.mjs`                              | генератор PWA-графики (иконки, промо-скриншоты); артефакты, руками не править |
+| `firmware/microbit-firmware.ts`                           | прошивка MakeCode для платы                                                   |
+| `server.mjs`                                              | статический сервер (только localhost; экспорт `createStaticServer`)           |
+| `tests/`                                                  | Vitest-тесты                                                                  |
+| `vercel.json`                                             | заголовки Vercel: nosniff, no-cache для sw.js                                 |
+| `aireview/`                                               | процесс ревью — [aireview/README.md](aireview/README.md)                      |
 
 ## Правила работы
 
@@ -68,7 +68,8 @@ npm run dev   # http://localhost:8080
 - **Статик-хостинг (Vercel)**: в `index.html`, CSS, `manifest.webmanifest` и
   `sw.js` — только относительные пути (`./`), никаких абсолютных `/...`.
 - **PWA**: новая статика в shell → добавить в `CORE_ASSETS` в `sw.js` и
-  поднять `VERSION`; иконки — только через `node scripts/generate-icons.mjs`.
+  поднять `VERSION`; иконки и скриншоты — только через
+  `node scripts/generate-icons.mjs`.
 - **Мобильное**: поведение touch-режима и приоритеты ввода зафиксированы в
   [ARCHITECTURE.md](ARCHITECTURE.md) («Режимы ввода», «Мобильный layout») —
   не менять точечно.

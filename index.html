@@ -2,13 +2,15 @@
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Защитник Неба — 16-bit shooter для BBC micro:bit</title>
-    <link rel="icon" href="data:," />
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0a0c10" />
     <!-- iOS standalone -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- Legacy Android: тоже открывать как standalone. -->
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Защитник Неба" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
@@ -75,6 +77,8 @@
         <p class="subtitle">16-BIT AIR COMBAT · MICRO:BIT EDITION</p>
         <button id="startBtn" class="btn btn-primary btn-big" type="button">СТАРТ</button>
         <button id="connectBtn" class="btn" type="button">ПОДКЛЮЧИТЬ MICRO:BIT</button>
+        <!-- Показывается только когда браузер предлагает установку (beforeinstallprompt). -->
+        <button id="installBtn" class="btn hidden" type="button">УСТАНОВИТЬ ПРИЛОЖЕНИЕ</button>
         <div class="help">
           <p>КЛАВИАТУРА: СТРЕЛКИ — ПРИЦЕЛ · ПРОБЕЛ — ОГОНЬ · ENTER — СТАРТ</p>
           <p>MICRO:BIT: НАКЛОН — ПРИЦЕЛ · A+B — ОГОНЬ · ВСТРЯХНУТЬ — СТАРТ</p>
