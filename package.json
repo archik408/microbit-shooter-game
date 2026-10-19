@@ -5,7 +5,7 @@
   "type": "module",
   "description": "«Защитник Неба» — HTML5 16-bit shooter, порт игры с BBC micro:bit",
   "scripts": {
-    "start": "node server.mjs",
+    "dev": "node server.mjs",
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:coverage": "vitest --run --coverage",

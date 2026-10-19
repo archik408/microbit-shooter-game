@@ -9,7 +9,7 @@ MakeCode-игры с BBC micro:bit (там механика была на LED-м
 
 ```bash
 npm install   # один раз: только dev-инструменты
-npm start     # или: node server.mjs
+npm run dev   # или: node server.mjs
 ```
 
 Открыть **http://localhost:8080** (Chrome или Edge). Сервер нужен обязательно:
@@ -108,7 +108,7 @@ npx vercel --prod   # продакшен
 ```
 
 Итог: `https://<project>.vercel.app`. HTTPS — secure context, Web Serial
-и PWA работают так же, как на localhost. Локальный `npm start` нужен
+и PWA работают так же, как на localhost. Локальный `npm run dev` нужен
 только для разработки (см. «Запуск»).
 
 ## Установка как приложение (PWA)

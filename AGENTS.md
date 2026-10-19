@@ -10,7 +10,7 @@ HTML5 16-bit шутер (кабина истребителя) — порт иг�
 
 ```bash
 npm install   # один раз: только dev-инструменты
-npm start     # http://localhost:8080
+npm run dev   # http://localhost:8080
 ```
 
 Сервер нужен для localhost (secure context Web Serial); ES-модули с `file://`
@@ -20,7 +20,7 @@ npm start     # http://localhost:8080
 
 | Команда                 | Что делает                                      |
 | ----------------------- | ----------------------------------------------- |
-| `npm start`             | статический сервер на `http://localhost:8080`   |
+| `npm run dev`           | статический сервер на `http://localhost:8080`   |
 | `npm run check`         | **обязательный гейт**: eslint + prettier + test |
 | `npm run lint`          | ESLint 10 (flat config, `eslint.config.js`)     |
 | `npm run format`        | Prettier (`--write .`)                          |
