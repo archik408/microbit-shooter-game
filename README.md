@@ -87,18 +87,29 @@ Web Serial доступен в Chrome/Edge на desktop (нужен `localhost` 
 Конвенции проекта — [AGENTS.md](AGENTS.md), устройство и инварианты —
 [ARCHITECTURE.md](ARCHITECTURE.md), процесс ревью — [aireview/README.md](aireview/README.md).
 
-## Деплой на GitHub Pages
+## Деплой на Vercel
 
-Игра — статика без сборки: страница и модули грузятся по относительным
-путям, `.nojekyll` отключает обработку Jekyll.
+Игра — статика без сборки: Vercel выкладывает её как есть, никакой
+конфигурации не нужно. `vercel.json` только добавляет заголовки
+(`nosniff` всем файлам и `no-cache` для `sw.js`, чтобы обновления
+service worker-а приходили сразу).
 
-1. Запушьте репозиторий на GitHub (ветка `main`).
-2. Settings → Pages → Source: **GitHub Actions**.
-3. Workflow `.github/workflows/deploy.yml` выкладывает сайт при каждом пуше
-   в `main` (или вручную: Actions → Deploy to GitHub Pages → Run workflow).
+Через сайт:
 
-Итог: `https://<user>.github.io/microbit-shooter/`. HTTPS — secure context,
-Web Serial на странице GitHub Pages работает так же, как на localhost.
+1. Запушьте репозиторий на GitHub/GitLab.
+2. vercel.com → Add New… → Project → импортируйте репозиторий.
+3. Framework Preset: **Other** (без build-команды) → Deploy.
+
+Или через CLI:
+
+```bash
+npx vercel          # превью
+npx vercel --prod   # продакшен
+```
+
+Итог: `https://<project>.vercel.app`. HTTPS — secure context, Web Serial
+и PWA работают так же, как на localhost. Локальный `npm start` нужен
+только для разработки (см. «Запуск»).
 
 ## Установка как приложение (PWA)
 
@@ -129,7 +140,7 @@ icons/, scripts/generate-icons.mjs — иконки PWA и их генерато
 firmware/microbit-firmware.ts — прошивка MakeCode для платы (USB serial)
 server.mjs                    — статический сервер без зависимостей (localhost)
 tests/                        — Vitest: serial, input, game, math, server
-.github/workflows/deploy.yml  — деплой на GitHub Pages
+vercel.json                  — заголовки для деплоя на Vercel
 AGENTS.md, ARCHITECTURE.md    — конвенции и архитектура проекта
 aireview/                     — процесс ревью (см. aireview/README.md)
 ```

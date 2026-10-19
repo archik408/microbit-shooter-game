@@ -14,7 +14,7 @@ npm start     # http://localhost:8080
 ```
 
 Сервер нужен для localhost (secure context Web Serial); ES-модули с `file://`
-не грузятся. На GitHub Pages игра работает без сервера.
+не грузятся. На Vercel игра работает без сервера.
 
 ## Команды
 
@@ -46,7 +46,7 @@ npm start     # http://localhost:8080
 | `firmware/microbit-firmware.ts`           | прошивка MakeCode для платы                                         |
 | `server.mjs`                              | статический сервер (только localhost; экспорт `createStaticServer`) |
 | `tests/`                                  | Vitest-тесты                                                        |
-| `.github/workflows/deploy.yml`            | деплой статики на GitHub Pages                                      |
+| `vercel.json`                             | заголовки Vercel: nosniff, no-cache для sw.js                       |
 | `aireview/`                               | процесс ревью — [aireview/README.md](aireview/README.md)            |
 
 ## Правила работы
@@ -65,8 +65,8 @@ npm start     # http://localhost:8080
   держите их тонкими обёртками над тестируемой логикой.
 - **Производительность**: в покадровом коде (`update`/`draw`) не создавать
   канвасы, градиенты и спрайты — кэшировать (см. критерий ревью №11).
-- **GitHub Pages**: в `index.html`, CSS, `manifest.webmanifest` и `sw.js` —
-  только относительные пути (`./`), никаких абсолютных `/...`.
+- **Статик-хостинг (Vercel)**: в `index.html`, CSS, `manifest.webmanifest` и
+  `sw.js` — только относительные пути (`./`), никаких абсолютных `/...`.
 - **PWA**: новая статика в shell → добавить в `CORE_ASSETS` в `sw.js` и
   поднять `VERSION`; иконки — только через `node scripts/generate-icons.mjs`.
 - **Мобильное**: поведение touch-режима и приоритеты ввода зафиксированы в

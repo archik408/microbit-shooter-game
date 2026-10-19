@@ -3,7 +3,7 @@
  *
  * same-origin GET — cache-first (ядро префетчится на install);
  * Google Fonts — stale-while-revalidate в отдельном вечном кэше.
- * Путь '.' — проект живёт и в подпути GitHub Pages.
+ * Путь '.' — работает и в корне домена (Vercel), и в подпути любого хостинга.
  */
 const VERSION = 'sky-defender-v2';
 const FONTS_CACHE = 'sky-defender-fonts';
