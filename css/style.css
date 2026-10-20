@@ -349,6 +349,16 @@ canvas#game {
   right: 10px;
 }
 
+/* Landscape на телефоне: высоты экрана мало, чип статуса и подсказки
+   мешают заголовку и кнопкам меню. Чипом на touch владеет и JS
+   (main.js прячет его в бою) — CSS-скрытие здесь только расширяет список. */
+@media (pointer: coarse) and (orientation: landscape) {
+  .chip,
+  .help {
+    display: none;
+  }
+}
+
 /* Портрет на телефоне: принудительно разворачиваем кабинет в landscape.
    Размеры подобраны под повёрнутый экран: u = min(24vh, 32vw). */
 @media (pointer: coarse) and (orientation: portrait) {
